@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import twitterLogo from './assets/twitter-logo.svg';
 
@@ -7,8 +7,10 @@ const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
-  // Actions
+  // State
+  const [walletAddress, setWalletAddress] = useState(null)
 
+  // Actions
   const checkIfWalletIsConnected = async () => {
     try {
       const { solana } = window
@@ -23,6 +25,9 @@ const App = () => {
             'Connected with Public Key:',
             response.publicKey.toString()
           )
+
+          // Save user's publicKey to walletAddress state
+          setWalletAddress(response.publicKey.toString())
         }
       } else {
         alert('Solana object not found! Get Phantom Wallet 👻')
@@ -31,6 +36,27 @@ const App = () => {
       console.log(error)
     }
   }
+
+  const connectWallet = async () => {
+    const { solana } = window
+
+    if (solana) {
+      const response = await solana.connect()
+      const publicKey = response?.publicKey.toString()
+      
+      console.log('Connected with Public Key:', publicKey)
+      setWalletAddress(publicKey)
+    }
+  }
+
+  const renderNotConnectedContainer = () => (
+    <button
+      className="cta-button connect-wallet-button"
+      onClick={connectWallet}
+    >
+      Connect wallet
+    </button>
+  )
 
   // When component first mounts, check if Phantom Wallet is connected
   useEffect(() => {
@@ -47,6 +73,9 @@ const App = () => {
         <div className="header-container">
           <p className="header">🍭 Candy Drop</p>
           <p className="sub-text">NFT drop machine with fair mint</p>
+          
+          {/* If wallet is not connected, render Connect Wallet button */}
+          {!walletAddress && renderNotConnectedContainer()}
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
