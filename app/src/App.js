@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import twitterLogo from './assets/twitter-logo.svg';
+import CandyMachine from './CandyMachine';
 
 // Constants
 const TWITTER_HANDLE = '_buildspace';
@@ -77,6 +78,12 @@ const App = () => {
           {/* If wallet is not connected, render Connect Wallet button */}
           {!walletAddress && renderNotConnectedContainer()}
         </div>
+        
+        {/* If wallet is connected, render CandyMachine */}
+        { walletAddress && 
+          <CandyMachine walletAddress={window.solana} />
+        }
+
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
