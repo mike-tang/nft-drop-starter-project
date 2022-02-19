@@ -14,6 +14,7 @@ import {
   getNetworkToken,
   CIVIC
 } from './helpers';
+import CountdownTimer from '../CountdownTimer';
 
 const { SystemProgram } = web3;
 const opts = {
@@ -387,19 +388,53 @@ const CandyMachine = ({ walletAddress }) => {
     return [];
   };
 
+  // Create render function for countdown timer
+  const renderDropTimer = () => {
+    // Get the current date and dropDate in a JavaScript Date object
+    const currentDate = new Date();
+    const dropDate = new Date(candyMachine.state.goLiveData * 1000);
+    
+    console.log('renderDropTimer currentDate:', currentDate)
+    console.log('renderDropTimer dropDate:', dropDate)
+
+    // If currentDate is before dropDate, render our Countdown component
+    if (currentDate < dropDate) {
+      console.log('Before drop date!');
+      // Don't forget to pass over your dropDate!
+      return <CountdownTimer dropDate={dropDate} />;
+    }
+
+    // Else let's just return the current drop date
+    return <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>;
+  };
+
   useEffect(() => {
     getCandyMachineState()
   }, [])
 
   return (
     // Only show candyMachine if available
-    candyMachine && (
+    candyMachine && candyMachine.state && (
       <div className="machine-container">
-        <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>
+        {renderDropTimer()}
+
         <p>{`Items Minted: ${candyMachine.state.itemsRedeemed} / ${candyMachine.state.itemsAvailable}`}</p>
-        <button className="cta-button mint-button" onClick={mintToken}>
-          Mint NFT
-        </button>
+        { candyMachine.state.itemsRedeemed === candyMachine.state.itemsAvailable 
+          ? (
+            <p className="sub-text">Sold out!</p>
+          )
+          : (
+            <button 
+              className="cta-button mint-button" 
+              onClick={mintToken}
+            >
+              Mint NFT
+            </button>
+          )
+        }
+
+        {/* {mints.length > 0 && renderMintedItems()}
+        {isLoadingMints && <p>LOADING MINTS...</p>} */}
       </div>
     )
   );
